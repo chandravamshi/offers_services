@@ -1,7 +1,6 @@
 import { Service } from "typedi";
 import { Prisma } from "@prisma/client";
 import { prisma } from "../index";
-import { OfferTemplate } from "../classes/OfferTemplate";
 import { ResOfferTemplate } from "../dto/offer.dto";
 
 @Service()
@@ -12,7 +11,7 @@ export class OfferService {
   }
 
   // create offer template
-  async createTemplate(newTemplate: OfferTemplate): Promise<OfferTemplate> {
+  async createTemplate(newTemplate: ResOfferTemplate): Promise<ResOfferTemplate> {
     const newOfferTemplate = await prisma.offerTemplate.create({
       data: {
         body: newTemplate.body,

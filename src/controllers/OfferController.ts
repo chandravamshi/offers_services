@@ -19,7 +19,6 @@ import {
 } from "../dto/offer.dto";
 import { OfferService } from "../services/OfferService";
 import { ValidationErrors } from "../middelwares/ValidationErrors";
-import { OfferTemplate } from "../classes/OfferTemplate";
 
 @Service()
 @JsonController("/offers")
