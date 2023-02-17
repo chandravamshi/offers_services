@@ -10,6 +10,7 @@ const OfferController_1 = require("./controllers/OfferController");
 (0, routing_controllers_1.useContainer)(typedi_1.Container);
 let compression = require("compression");
 var morgan = require("morgan");
+//const crypto = require('crypto');
 // creates express app, registers all controller routes and returns you express app instance
 const app = (0, routing_controllers_1.createExpressServer)({
     defaultErrorHandler: false,

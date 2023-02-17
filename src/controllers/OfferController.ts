@@ -14,11 +14,13 @@ import { Service } from "typedi";
 import {
   CreateOfferTemplateDto,
   FindTemplateDto,
+  ReqGenerateOfferDto,
+  ReqOfferViewed,
   ResOfferTemplate,
-  UpdateTemplateDto,
 } from "../dto/offer.dto";
 import { OfferService } from "../services/OfferService";
 import { ValidationErrors } from "../middelwares/ValidationErrors";
+import { Offer, OfferTemplate } from "@prisma/client";
 
 @Service()
 @JsonController("/offers")
@@ -27,9 +29,9 @@ export class OfferController {
 
   // get all template records
   @Get("/list-templates")
-  async getAllTemplates(@Res() response: any): Promise<ResOfferTemplate[]> {
+  async getAllTemplates(@Res() response: any): Promise<OfferTemplate[]> {
     try {
-      const allTemplates = await this.offerService.getAllRecords();
+      const allTemplates = await this.offerService.getAllTemplates();
       return response.status(200).send({
         status: "success",
         data: allTemplates,
@@ -77,7 +79,11 @@ export class OfferController {
       const template = await this.offerService.getTemplate(params.id);
       return response.status(200).send({
         status: "success",
-        data: template.body,
+        data: {
+          name: template.name,
+          type: template.type,
+          body: template.versions[0].body,
+        },
       });
     } catch (error) {
       throw error;
@@ -85,21 +91,19 @@ export class OfferController {
   }
 
   // update template by id
-  @Post("/update-template")
+  @Post("/update-template/:id")
   @UseAfter(ValidationErrors)
   async updateTemplate(
-    @Body({
-      validate: {
-        whitelist: true,
-        forbidNonWhitelisted: true,
-        validationError: { target: false, value: false },
-      },
-    })
-    params: UpdateTemplateDto,
+    @QueryParams() queryParams: any,
+    @Body()
+    bodyParams: any,
     @Res() response: any
   ): Promise<ResOfferTemplate> {
     try {
-      const template = await this.offerService.updateTemplate(params);
+      const template = await this.offerService.updateTemplate(
+        queryParams,
+        bodyParams
+      );
       return response.status(200).send({
         status: "success",
         data: template,
@@ -108,4 +112,88 @@ export class OfferController {
       throw error;
     }
   }
+
+  @Post("/generate-offer")
+  @UseAfter(ValidationErrors)
+  async generateOffer(
+    @Body({
+      validate: {
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        validationError: { target: false, value: false },
+      },
+    })
+    bodyParams: ReqGenerateOfferDto,
+    @Res() response: any
+  ): Promise<Offer> {
+    try {
+      const offer = await this.offerService.generateOffer(bodyParams);
+      return response.status(200).send({
+        status: "success",
+        data: offer,
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @Post("/offer-viewed")
+  @UseAfter(ValidationErrors)
+  async offerViewed(
+    @QueryParams({
+      validate: {
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        validationError: { target: false, value: false },
+      },
+    })
+    queryParams: ReqOfferViewed,
+    @Res() response: any
+  ): Promise<Offer> {
+    try {
+      console.log(queryParams);
+      const offer = await this.offerService.offerViewed(queryParams);
+      return response.status(200).send({
+        status: "success",
+        data: offer,
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @Post("/offer-accepted")
+  @UseAfter(ValidationErrors)
+  async offerAccepted(
+    @QueryParams({
+      validate: {
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        validationError: { target: false, value: false },
+      },
+    })
+    queryParams: ReqOfferViewed,
+    @Res() response: any
+  ): Promise<Offer> {
+    try {
+      console.log(queryParams);
+      const offer = await this.offerService.offerAccepted(queryParams);
+      return response.status(200).send({
+        status: "success",
+        data: offer,
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
 }
+
+/**
+ * {
+      validate: {
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        validationError: { target: false, value: false },
+      },
+    }
+ */

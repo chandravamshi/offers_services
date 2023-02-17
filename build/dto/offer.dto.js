@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UpdateTemplateDto = exports.FindTemplateDto = exports.CreateOfferTemplateDto = void 0;
+exports.ReqOfferViewed = exports.ReqGenerateOfferDto = exports.UpdateTemplateDto = exports.FindTemplateDto = exports.CreateOfferTemplateDto = void 0;
 const class_validator_1 = require("class-validator");
 class CreateOfferTemplateDto {
 }
@@ -45,3 +45,28 @@ __decorate([
     __metadata("design:type", Number)
 ], UpdateTemplateDto.prototype, "id", void 0);
 exports.UpdateTemplateDto = UpdateTemplateDto;
+class ReqGenerateOfferDto {
+}
+__decorate([
+    (0, class_validator_1.IsNotEmpty)({ message: "parameter data should not be empty" }),
+    (0, class_validator_1.IsString)({ message: "parameter data should be string" }),
+    __metadata("design:type", String)
+], ReqGenerateOfferDto.prototype, "data", void 0);
+__decorate([
+    (0, class_validator_1.IsNotEmpty)({ message: "parameter expiry should not be empty" }),
+    (0, class_validator_1.IsDateString)(),
+    __metadata("design:type", Date)
+], ReqGenerateOfferDto.prototype, "expiry", void 0);
+__decorate([
+    (0, class_validator_1.IsNumber)({}, { message: "parameter bodyVersionId should be int" }),
+    (0, class_validator_1.IsNotEmpty)({ message: "parameter bodyVersionId is needed" }),
+    __metadata("design:type", Number)
+], ReqGenerateOfferDto.prototype, "bodyVersionId", void 0);
+exports.ReqGenerateOfferDto = ReqGenerateOfferDto;
+class ReqOfferViewed {
+}
+__decorate([
+    (0, class_validator_1.IsNotEmpty)({ message: "parameter uid is needed" }),
+    __metadata("design:type", String)
+], ReqOfferViewed.prototype, "uid", void 0);
+exports.ReqOfferViewed = ReqOfferViewed;

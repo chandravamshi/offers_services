@@ -12,6 +12,7 @@ import { OfferController } from "./controllers/OfferController";
 useContainer(Container);
 let compression = require("compression");
 var morgan = require("morgan");
+//const crypto = require('crypto');
 // creates express app, registers all controller routes and returns you express app instance
 const app = createExpressServer({
   defaultErrorHandler: false,

@@ -35,7 +35,7 @@ let OfferController = class OfferController {
     getAllTemplates(response) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const allTemplates = yield this.offerService.getAllRecords();
+                const allTemplates = yield this.offerService.getAllTemplates();
                 return response.status(200).send({
                     status: "success",
                     data: allTemplates,
@@ -68,7 +68,11 @@ let OfferController = class OfferController {
                 const template = yield this.offerService.getTemplate(params.id);
                 return response.status(200).send({
                     status: "success",
-                    data: template.body,
+                    data: {
+                        name: template.name,
+                        type: template.type,
+                        body: template.versions[0].body,
+                    },
                 });
             }
             catch (error) {
@@ -77,13 +81,57 @@ let OfferController = class OfferController {
         });
     }
     // update template by id
-    updateTemplate(params, response) {
+    updateTemplate(queryParams, bodyParams, response) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const template = yield this.offerService.updateTemplate(params);
+                const template = yield this.offerService.updateTemplate(queryParams, bodyParams);
                 return response.status(200).send({
                     status: "success",
                     data: template,
+                });
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    generateOffer(bodyParams, response) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const offer = yield this.offerService.generateOffer(bodyParams);
+                return response.status(200).send({
+                    status: "success",
+                    data: offer,
+                });
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    offerViewed(queryParams, response) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                console.log(queryParams);
+                const offer = yield this.offerService.offerViewed(queryParams);
+                return response.status(200).send({
+                    status: "success",
+                    data: offer,
+                });
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    offerAccepted(queryParams, response) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                console.log(queryParams);
+                const offer = yield this.offerService.offerAccepted(queryParams);
+                return response.status(200).send({
+                    status: "success",
+                    data: offer,
                 });
             }
             catch (error) {
@@ -124,7 +172,17 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], OfferController.prototype, "findTemplate", null);
 __decorate([
-    (0, routing_controllers_1.Post)("/update-template"),
+    (0, routing_controllers_1.Post)("/update-template/:id"),
+    (0, routing_controllers_1.UseAfter)(ValidationErrors_1.ValidationErrors),
+    __param(0, (0, routing_controllers_1.QueryParams)()),
+    __param(1, (0, routing_controllers_1.Body)()),
+    __param(2, (0, routing_controllers_1.Res)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object, Object]),
+    __metadata("design:returntype", Promise)
+], OfferController.prototype, "updateTemplate", null);
+__decorate([
+    (0, routing_controllers_1.Post)("/generate-offer"),
     (0, routing_controllers_1.UseAfter)(ValidationErrors_1.ValidationErrors),
     __param(0, (0, routing_controllers_1.Body)({
         validate: {
@@ -135,12 +193,51 @@ __decorate([
     })),
     __param(1, (0, routing_controllers_1.Res)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [offer_dto_1.UpdateTemplateDto, Object]),
+    __metadata("design:paramtypes", [offer_dto_1.ReqGenerateOfferDto, Object]),
     __metadata("design:returntype", Promise)
-], OfferController.prototype, "updateTemplate", null);
+], OfferController.prototype, "generateOffer", null);
+__decorate([
+    (0, routing_controllers_1.Post)("/offer-viewed"),
+    (0, routing_controllers_1.UseAfter)(ValidationErrors_1.ValidationErrors),
+    __param(0, (0, routing_controllers_1.QueryParams)({
+        validate: {
+            whitelist: true,
+            forbidNonWhitelisted: true,
+            validationError: { target: false, value: false },
+        },
+    })),
+    __param(1, (0, routing_controllers_1.Res)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [offer_dto_1.ReqOfferViewed, Object]),
+    __metadata("design:returntype", Promise)
+], OfferController.prototype, "offerViewed", null);
+__decorate([
+    (0, routing_controllers_1.Post)("/offer-accepted"),
+    (0, routing_controllers_1.UseAfter)(ValidationErrors_1.ValidationErrors),
+    __param(0, (0, routing_controllers_1.QueryParams)({
+        validate: {
+            whitelist: true,
+            forbidNonWhitelisted: true,
+            validationError: { target: false, value: false },
+        },
+    })),
+    __param(1, (0, routing_controllers_1.Res)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [offer_dto_1.ReqOfferViewed, Object]),
+    __metadata("design:returntype", Promise)
+], OfferController.prototype, "offerAccepted", null);
 OfferController = __decorate([
     (0, typedi_1.Service)(),
     (0, routing_controllers_1.JsonController)("/offers"),
     __metadata("design:paramtypes", [OfferService_1.OfferService])
 ], OfferController);
 exports.OfferController = OfferController;
+/**
+ * {
+      validate: {
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        validationError: { target: false, value: false },
+      },
+    }
+ */

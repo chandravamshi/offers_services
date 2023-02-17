@@ -8,8 +8,32 @@ datasource db {
 }
 
 model OfferTemplate {
-  id   Int    @id @default(autoincrement())
-  body String
-  type String
-  name String
+  id       Int           @id @default(autoincrement())
+  type     String
+  name     String        @unique
+  versions BodyVersion[]
+}
+
+model BodyVersion {
+  id            Int           @id @default(autoincrement())
+  offerTemplate OfferTemplate @relation(fields: [offerId], references: [id])
+  offerId       Int
+  body          String
+  offers        Offer[]
+  version       Int
+}
+
+model Offer {
+  id             Int         @id @default(autoincrement())
+  uid            String      @unique
+  expiry         DateTime
+  createdDate    DateTime    @default(now())
+  views          Int         @default(0)
+  isAccepted     Boolean     @default(false)
+  acceptedDate   DateTime?
+  prefferedMonth String?
+  lastView       DateTime?
+  bodyVersion    BodyVersion @relation(fields: [bodyVersionId], references: [id])
+  bodyVersionId  Int
+  data           String      @db.MediumText
 }
