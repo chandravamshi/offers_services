@@ -12,9 +12,14 @@ export class ValidationErrors implements ExpressErrorMiddlewareInterface {
     if (error) {
       const responseObject = {} as any;
 
-      responseObject.message =
-        "You have an error in your request's body. Check 'errors' field for more details!";
-      responseObject.errors = error;
+      if (error.error) {
+        responseObject.errors = error;
+      }
+
+      responseObject.message = error.message
+        ? error.message
+        : "You have an error in your request's body. Check 'errors' field for more details!";
+      //responseObject.cm = error.message
       //responseObject.status = 0;
       //responseObject.data = {};
       //responseObject.data.message = [];
@@ -24,7 +29,7 @@ export class ValidationErrors implements ExpressErrorMiddlewareInterface {
       //     });
       // });
 
-      res.json(responseObject);
+      res.send(responseObject);
     }
   }
 }
