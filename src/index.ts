@@ -8,10 +8,12 @@ import { PrismaClient } from "@prisma/client";
 import "reflect-metadata";
 import { Container } from "typedi";
 import { OfferController } from "./controllers/OfferController";
-
+import { Settings } from "luxon";
 useContainer(Container);
 let compression = require("compression");
 var morgan = require("morgan");
+
+Settings.defaultZone = "utc";
 //const crypto = require('crypto');
 // creates express app, registers all controller routes and returns you express app instance
 const app = createExpressServer({
