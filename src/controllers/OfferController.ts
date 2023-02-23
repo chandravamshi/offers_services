@@ -14,6 +14,7 @@ import { Service } from "typedi";
 import {
   CreateOfferTemplateDto,
   FindTemplateDto,
+  ReqAcceptOffer,
   ReqGenerateOfferDto,
   ReqOfferViewed,
   ResOfferTemplate,
@@ -162,9 +163,9 @@ export class OfferController {
     }
   }
 
-  @Post("/offer-accepted")
+  @Post("/accept-offer")
   @UseAfter(ValidationErrors)
-  async offerAccepted(
+  async acceptOffer(
     @QueryParams({
       validate: {
         whitelist: true,
@@ -172,12 +173,12 @@ export class OfferController {
         validationError: { target: false, value: false },
       },
     })
-    queryParams: ReqOfferViewed,
+    queryParams: ReqAcceptOffer,
     @Res() response: any
   ): Promise<Offer> {
     try {
       console.log(queryParams);
-      const offer = await this.offerService.offerAccepted(queryParams);
+      const offer = await this.offerService.acceptOffer(queryParams);
       return response.status(200).send({
         status: "success",
         data: offer,
