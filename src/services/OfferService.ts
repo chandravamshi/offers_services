@@ -2,11 +2,15 @@ import { Service } from "typedi";
 import { Offer, OfferTemplate, Prisma } from "@prisma/client";
 import { prisma } from "../index";
 import {
+  ReqAcceptOffer,
   ReqGenerateOfferDto,
   ReqOfferViewed,
   ResOfferTemplate,
 } from "../dto/offer.dto";
 import crypto from "crypto";
+import { DateTime } from "luxon";
+const bcrypt = require("bcrypt")
+
 
 @Service()
 export class OfferService {
@@ -126,18 +130,36 @@ export class OfferService {
     }
   }
 
-  async offerAccepted(queryParams: ReqOfferViewed): Promise<Offer> {
+  async acceptOffer(queryParams: ReqAcceptOffer): Promise<Offer> {
     try {
-      const offerAccepted = await prisma.offer.update({
+      const offerDetails = await prisma.offer.findUniqueOrThrow({
+        where: {
+          uid: queryParams.uid,
+        },
+      });
+
+      // check if offer is already accepted
+      if (offerDetails.isAccepted) {
+        throw new Error("Offer Already Accepted");
+      }
+
+      // check whether time for accepting the offer is expired or not
+      const expiryLuxon = DateTime.fromJSDate(offerDetails.expiry);
+      const now = DateTime.now();
+      if (expiryLuxon < now) {
+        throw new Error("Offer Already Expired");
+      }
+      const acceptOffer = await prisma.offer.update({
         where: {
           uid: queryParams.uid,
         },
         data: {
           isAccepted: true,
           acceptedDate: new Date(),
+          prefferedMonth: queryParams.prefferedMonth,
         },
       });
-      return offerAccepted;
+      return acceptOffer;
     } catch (error) {
       throw error;
     }
