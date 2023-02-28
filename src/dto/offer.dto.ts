@@ -62,3 +62,9 @@ export class ReqOfferViewed {
   @IsNotEmpty({ message: "parameter uid is needed" })
   uid: string;
 }
+
+
+export class ReqAcceptOffer extends ReqOfferViewed{
+  @IsNotEmpty({ message: "parameter preffered month is needed" })
+  prefferedMonth: string;
+}

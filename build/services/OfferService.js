@@ -22,6 +22,7 @@ exports.OfferService = void 0;
 const typedi_1 = require("typedi");
 const index_1 = require("../index");
 const crypto_1 = __importDefault(require("crypto"));
+const luxon_1 = require("luxon");
 let OfferService = class OfferService {
     getAllTemplates() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -146,19 +147,35 @@ let OfferService = class OfferService {
             }
         });
     }
-    offerAccepted(queryParams) {
+    acceptOffer(queryParams) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const offerAccepted = yield index_1.prisma.offer.update({
+                const offerDetails = yield index_1.prisma.offer.findUniqueOrThrow({
+                    where: {
+                        uid: queryParams.uid,
+                    },
+                });
+                // check if offer is already accepted
+                if (offerDetails.isAccepted) {
+                    throw new Error("Offer Already Accepted");
+                }
+                // check whether time for accepting the offer is expired or not
+                const expiryLuxon = luxon_1.DateTime.fromJSDate(offerDetails.expiry);
+                const now = luxon_1.DateTime.now();
+                if (expiryLuxon < now) {
+                    throw new Error("Offer Already Expired");
+                }
+                const acceptOffer = yield index_1.prisma.offer.update({
                     where: {
                         uid: queryParams.uid,
                     },
                     data: {
                         isAccepted: true,
                         acceptedDate: new Date(),
+                        prefferedMonth: queryParams.prefferedMonth,
                     },
                 });
-                return offerAccepted;
+                return acceptOffer;
             }
             catch (error) {
                 throw error;

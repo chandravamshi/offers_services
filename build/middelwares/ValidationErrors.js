@@ -12,9 +12,13 @@ let ValidationErrors = class ValidationErrors {
     error(error, request, res, next) {
         if (error) {
             const responseObject = {};
-            responseObject.message =
-                "You have an error in your request's body. Check 'errors' field for more details!";
-            responseObject.errors = error;
+            if (error.error) {
+                responseObject.errors = error;
+            }
+            responseObject.message = error.message
+                ? error.message
+                : "You have an error in your request's body. Check 'errors' field for more details!";
+            //responseObject.cm = error.message
             //responseObject.status = 0;
             //responseObject.data = {};
             //responseObject.data.message = [];
@@ -23,7 +27,7 @@ let ValidationErrors = class ValidationErrors {
             //         responseObject.data.message.push(`property ${element.constraints[type]}`);
             //     });
             // });
-            res.json(responseObject);
+            res.send(responseObject);
         }
     }
 };

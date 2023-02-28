@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ReqOfferViewed = exports.ReqGenerateOfferDto = exports.UpdateTemplateDto = exports.FindTemplateDto = exports.CreateOfferTemplateDto = void 0;
+exports.ReqAcceptOffer = exports.ReqOfferViewed = exports.ReqGenerateOfferDto = exports.UpdateTemplateDto = exports.FindTemplateDto = exports.CreateOfferTemplateDto = void 0;
 const class_validator_1 = require("class-validator");
 class CreateOfferTemplateDto {
 }
@@ -70,3 +70,10 @@ __decorate([
     __metadata("design:type", String)
 ], ReqOfferViewed.prototype, "uid", void 0);
 exports.ReqOfferViewed = ReqOfferViewed;
+class ReqAcceptOffer extends ReqOfferViewed {
+}
+__decorate([
+    (0, class_validator_1.IsNotEmpty)({ message: "parameter preffered month is needed" }),
+    __metadata("design:type", String)
+], ReqAcceptOffer.prototype, "prefferedMonth", void 0);
+exports.ReqAcceptOffer = ReqAcceptOffer;

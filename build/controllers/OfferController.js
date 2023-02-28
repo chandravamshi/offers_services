@@ -124,11 +124,11 @@ let OfferController = class OfferController {
             }
         });
     }
-    offerAccepted(queryParams, response) {
+    acceptOffer(queryParams, response) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 console.log(queryParams);
-                const offer = yield this.offerService.offerAccepted(queryParams);
+                const offer = yield this.offerService.acceptOffer(queryParams);
                 return response.status(200).send({
                     status: "success",
                     data: offer,
@@ -212,7 +212,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], OfferController.prototype, "offerViewed", null);
 __decorate([
-    (0, routing_controllers_1.Post)("/offer-accepted"),
+    (0, routing_controllers_1.Post)("/accept-offer"),
     (0, routing_controllers_1.UseAfter)(ValidationErrors_1.ValidationErrors),
     __param(0, (0, routing_controllers_1.QueryParams)({
         validate: {
@@ -223,9 +223,9 @@ __decorate([
     })),
     __param(1, (0, routing_controllers_1.Res)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [offer_dto_1.ReqOfferViewed, Object]),
+    __metadata("design:paramtypes", [offer_dto_1.ReqAcceptOffer, Object]),
     __metadata("design:returntype", Promise)
-], OfferController.prototype, "offerAccepted", null);
+], OfferController.prototype, "acceptOffer", null);
 OfferController = __decorate([
     (0, typedi_1.Service)(),
     (0, routing_controllers_1.JsonController)("/offers"),
