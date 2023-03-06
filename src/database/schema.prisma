@@ -16,11 +16,11 @@ model OfferTemplate {
 
 model BodyVersion {
   id            Int           @id @default(autoincrement())
-  offerTemplate OfferTemplate @relation(fields: [offerId], references: [id])
   offerId       Int
-  body          String
-  offers        Offer[]
+  body          String        @db.LongText
   version       Int
+  offerTemplate OfferTemplate @relation(fields: [offerId], references: [id])
+  offers        Offer[]
 }
 
 model Offer {
@@ -33,7 +33,8 @@ model Offer {
   acceptedDate   DateTime?
   prefferedMonth String?
   lastView       DateTime?
-  bodyVersion    BodyVersion @relation(fields: [bodyVersionId], references: [id])
-  bodyVersionId  Int
+  bodyVersionId  Int         @unique
+  offerId        Int?
   data           String      @db.MediumText
+  bodyVersion    BodyVersion @relation(fields: [bodyVersionId], references: [id])
 }

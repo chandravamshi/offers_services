@@ -9,8 +9,7 @@ import {
 } from "../dto/offer.dto";
 import crypto from "crypto";
 import { DateTime } from "luxon";
-const bcrypt = require("bcrypt")
-
+const bcrypt = require("bcrypt");
 
 @Service()
 export class OfferService {
@@ -55,6 +54,7 @@ export class OfferService {
               version: "desc",
             },
             select: {
+              version: true,
               body: true,
             },
           },
@@ -62,6 +62,40 @@ export class OfferService {
       });
 
       return template;
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async getTemplateData(id: number): Promise<any> {
+    try {
+      const template = await prisma.offer.findUniqueOrThrow({
+        where: {
+          bodyVersionId: id,
+        },
+      });
+
+      return template;
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  //getTemplateAndData
+
+  async getTemplateAndData(uid: string): Promise<any> {
+    try {
+      const offerDetails = await prisma.offer.findUniqueOrThrow({
+        where: {
+          uid: uid,
+        },
+      });
+
+      if (offerDetails.offerId) {
+        const template = await this.getTemplate(offerDetails.offerId);
+      
+        return { template: template, templateData: offerDetails.data };
+      }
     } catch (e) {
       throw e;
     }

@@ -23,6 +23,7 @@ const typedi_1 = require("typedi");
 const index_1 = require("../index");
 const crypto_1 = __importDefault(require("crypto"));
 const luxon_1 = require("luxon");
+const bcrypt = require("bcrypt");
 let OfferService = class OfferService {
     getAllTemplates() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -67,12 +68,47 @@ let OfferService = class OfferService {
                                 version: "desc",
                             },
                             select: {
+                                version: true,
                                 body: true,
                             },
                         },
                     },
                 });
                 return template;
+            }
+            catch (e) {
+                throw e;
+            }
+        });
+    }
+    getTemplateData(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const template = yield index_1.prisma.offer.findUniqueOrThrow({
+                    where: {
+                        bodyVersionId: id,
+                    },
+                });
+                return template;
+            }
+            catch (e) {
+                throw e;
+            }
+        });
+    }
+    //getTemplateAndData
+    getTemplateAndData(uid) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const offerDetails = yield index_1.prisma.offer.findUniqueOrThrow({
+                    where: {
+                        uid: uid,
+                    },
+                });
+                if (offerDetails.offerId) {
+                    const template = yield this.getTemplate(offerDetails.offerId);
+                    return { template: template, templateData: offerDetails.data };
+                }
             }
             catch (e) {
                 throw e;

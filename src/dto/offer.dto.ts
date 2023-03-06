@@ -25,6 +25,11 @@ export class FindTemplateDto {
   @IsNotEmpty({ message: "parameter id is needed" })
   id: number;
 }
+export class FindTemplateAndDataDto {
+  @IsString({message: "parameter id should be int"})
+  @IsNotEmpty({ message: "parameter id is needed" })
+  uid: string;
+}
 
 export class UpdateTemplateDto extends CreateOfferTemplateDto {
   @IsNumber({}, { message: "parameter id should be int" })

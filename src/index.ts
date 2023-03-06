@@ -16,11 +16,15 @@ var morgan = require("morgan");
 Settings.defaultZone = "utc";
 //const crypto = require('crypto');
 // creates express app, registers all controller routes and returns you express app instance
-const app = createExpressServer({
+export const app = createExpressServer({
+  cors: {
+    maxAge: 7200,
+},
   defaultErrorHandler: false,
 });
 
 useExpressServer(app, {
+  
   controllers: [OfferController],
 });
 
@@ -29,6 +33,6 @@ app.use(compression());
 
 export const prisma = new PrismaClient();
 
-app.listen(5000, () => {
-  console.log("started server at port 5000");
+app.listen(process.env.PORT, () => {
+  console.log("started server at port process.env.PORT");
 });

@@ -9,10 +9,12 @@ import {
   Req,
   Res,
   UseAfter,
+  UseBefore,
 } from "routing-controllers";
 import { Service } from "typedi";
 import {
   CreateOfferTemplateDto,
+  FindTemplateAndDataDto,
   FindTemplateDto,
   ReqAcceptOffer,
   ReqGenerateOfferDto,
@@ -22,6 +24,7 @@ import {
 import { OfferService } from "../services/OfferService";
 import { ValidationErrors } from "../middelwares/ValidationErrors";
 import { Offer, OfferTemplate } from "@prisma/client";
+import { AuthMiddleware } from "../middelwares/AuthMiddelware";
 
 @Service()
 @JsonController("/offers")
@@ -30,8 +33,10 @@ export class OfferController {
 
   // get all template records
   @Get("/list-templates")
+  @UseBefore(AuthMiddleware)
   async getAllTemplates(@Res() response: any): Promise<OfferTemplate[]> {
     try {
+      console.log("/list-templates");
       const allTemplates = await this.offerService.getAllTemplates();
       return response.status(200).send({
         status: "success",
@@ -70,7 +75,7 @@ export class OfferController {
   }
 
   // find template by id
-  @Get("/find-template/:id")
+  @Get("/find-template")
   @UseAfter(ValidationErrors)
   async findTemplate(
     @QueryParams() params: FindTemplateDto,
@@ -84,7 +89,26 @@ export class OfferController {
           name: template.name,
           type: template.type,
           body: template.versions[0].body,
+          version: template.version[0].version,
         },
+      });
+    } catch (error) {
+      response.status(404);
+      throw error;
+    }
+  }
+
+  @Get("/get-template-data")
+  @UseAfter(ValidationErrors)
+  async getTemplateData(
+    @QueryParams() params: FindTemplateDto,
+    @Res() response: any
+  ): Promise<ResOfferTemplate> {
+    try {
+      const template = await this.offerService.getTemplateData(params.id);
+      return response.status(200).send({
+        status: "success",
+        data: JSON.parse(template.data),
       });
     } catch (error) {
       throw error;
@@ -184,6 +208,25 @@ export class OfferController {
         data: offer,
       });
     } catch (error) {
+      throw error;
+    }
+  }
+
+  @Get("/find-template-and-data-by-uid")
+  @UseAfter(ValidationErrors)
+  async findTemplateAndData(
+    @QueryParams() params: FindTemplateAndDataDto,
+    @Res() response: any
+  ): Promise<ResOfferTemplate> {
+    try {
+      const template = await this.offerService.getTemplateAndData(params.uid);
+      return response.status(200).send({
+        status: "success",
+        template: template.template.versions[0].body,
+        data: JSON.parse(template.templateData),
+      });
+    } catch (error) {
+      response.status(404);
       throw error;
     }
   }

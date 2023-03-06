@@ -27,6 +27,7 @@ const typedi_1 = require("typedi");
 const offer_dto_1 = require("../dto/offer.dto");
 const OfferService_1 = require("../services/OfferService");
 const ValidationErrors_1 = require("../middelwares/ValidationErrors");
+const AuthMiddelware_1 = require("../middelwares/AuthMiddelware");
 let OfferController = class OfferController {
     constructor(offerService) {
         this.offerService = offerService;
@@ -35,6 +36,7 @@ let OfferController = class OfferController {
     getAllTemplates(response) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                console.log("/list-templates");
                 const allTemplates = yield this.offerService.getAllTemplates();
                 return response.status(200).send({
                     status: "success",
@@ -72,7 +74,23 @@ let OfferController = class OfferController {
                         name: template.name,
                         type: template.type,
                         body: template.versions[0].body,
+                        version: template.version[0].version,
                     },
+                });
+            }
+            catch (error) {
+                response.status(404);
+                throw error;
+            }
+        });
+    }
+    getTemplateData(params, response) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const template = yield this.offerService.getTemplateData(params.id);
+                return response.status(200).send({
+                    status: "success",
+                    data: JSON.parse(template.data),
                 });
             }
             catch (error) {
@@ -139,9 +157,26 @@ let OfferController = class OfferController {
             }
         });
     }
+    findTemplateAndData(params, response) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const template = yield this.offerService.getTemplateAndData(params.uid);
+                return response.status(200).send({
+                    status: "success",
+                    template: template.template.versions[0].body,
+                    data: JSON.parse(template.templateData),
+                });
+            }
+            catch (error) {
+                response.status(404);
+                throw error;
+            }
+        });
+    }
 };
 __decorate([
     (0, routing_controllers_1.Get)("/list-templates"),
+    (0, routing_controllers_1.UseBefore)(AuthMiddelware_1.AuthMiddleware),
     __param(0, (0, routing_controllers_1.Res)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
@@ -163,7 +198,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], OfferController.prototype, "createOfferTemplate", null);
 __decorate([
-    (0, routing_controllers_1.Get)("/find-template/:id"),
+    (0, routing_controllers_1.Get)("/find-template"),
     (0, routing_controllers_1.UseAfter)(ValidationErrors_1.ValidationErrors),
     __param(0, (0, routing_controllers_1.QueryParams)()),
     __param(1, (0, routing_controllers_1.Res)()),
@@ -171,6 +206,15 @@ __decorate([
     __metadata("design:paramtypes", [offer_dto_1.FindTemplateDto, Object]),
     __metadata("design:returntype", Promise)
 ], OfferController.prototype, "findTemplate", null);
+__decorate([
+    (0, routing_controllers_1.Get)("/get-template-data"),
+    (0, routing_controllers_1.UseAfter)(ValidationErrors_1.ValidationErrors),
+    __param(0, (0, routing_controllers_1.QueryParams)()),
+    __param(1, (0, routing_controllers_1.Res)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [offer_dto_1.FindTemplateDto, Object]),
+    __metadata("design:returntype", Promise)
+], OfferController.prototype, "getTemplateData", null);
 __decorate([
     (0, routing_controllers_1.Post)("/update-template/:id"),
     (0, routing_controllers_1.UseAfter)(ValidationErrors_1.ValidationErrors),
@@ -226,6 +270,15 @@ __decorate([
     __metadata("design:paramtypes", [offer_dto_1.ReqAcceptOffer, Object]),
     __metadata("design:returntype", Promise)
 ], OfferController.prototype, "acceptOffer", null);
+__decorate([
+    (0, routing_controllers_1.Get)("/find-template-and-data-by-uid"),
+    (0, routing_controllers_1.UseAfter)(ValidationErrors_1.ValidationErrors),
+    __param(0, (0, routing_controllers_1.QueryParams)()),
+    __param(1, (0, routing_controllers_1.Res)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [offer_dto_1.FindTemplateAndDataDto, Object]),
+    __metadata("design:returntype", Promise)
+], OfferController.prototype, "findTemplateAndData", null);
 OfferController = __decorate([
     (0, typedi_1.Service)(),
     (0, routing_controllers_1.JsonController)("/offers"),
