@@ -1,5 +1,5 @@
 import { Service } from "typedi";
-import { Offer, OfferTemplate, Prisma } from "@prisma/client";
+import { Offer, Prisma, SectionContent } from "@prisma/client";
 import { prisma } from "../index";
 import {
   ReqAcceptOffer,
@@ -13,6 +13,7 @@ const bcrypt = require("bcrypt");
 
 @Service()
 export class OfferService {
+  /*
   async getAllTemplates(): Promise<OfferTemplate[]> {
     const allTemplates = await prisma.offerTemplate.findMany();
     return allTemplates;
@@ -37,8 +38,8 @@ export class OfferService {
     });
 
     return newOfferTemplate;
-  }
-
+  }*/
+  /*
   async getTemplate(id: number): Promise<any> {
     try {
       const template = await prisma.offerTemplate.findUniqueOrThrow({
@@ -65,8 +66,8 @@ export class OfferService {
     } catch (e) {
       throw e;
     }
-  }
-
+  }*/
+  /*
   async getTemplateData(id: number): Promise<any> {
     try {
       const template = await prisma.offer.findUniqueOrThrow({
@@ -79,10 +80,10 @@ export class OfferService {
     } catch (e) {
       throw e;
     }
-  }
+  }*/
 
   //getTemplateAndData
-
+  /*
   async getTemplateAndData(uid: string): Promise<any> {
     try {
       const offerDetails = await prisma.offer.findUniqueOrThrow({
@@ -93,14 +94,21 @@ export class OfferService {
 
       if (offerDetails.offerId) {
         const template = await this.getTemplate(offerDetails.offerId);
-      
-        return { template: template, templateData: offerDetails.data };
+
+        if(offerDetails.expiry){
+          const expiryLuxon = DateTime.fromJSDate(offerDetails.expiry);
+          const now = DateTime.now();
+          offerDetails['isExpired'] =  !(now < expiryLuxon)
+        }
+        
+
+        return { template: template, templateData: offerDetails.data,offerDetails : offerDetails };
       }
     } catch (e) {
       throw e;
     }
-  }
-
+  }*/
+  /*
   async updateTemplate(queryParams: any, bodyParams: any): Promise<any> {
     try {
       const latestVersionNumber = await prisma.bodyVersion.findMany({
@@ -127,23 +135,25 @@ export class OfferService {
     } catch (e) {
       throw e;
     }
-  }
+  }*/
 
-  async generateOffer(bodyParams: ReqGenerateOfferDto): Promise<Offer> {
+  /*async generateOffer(bodyParams: any): Promise<Offer> {
     try {
+      console.log(bodyParams.bodyVersionId);
       const offer = await prisma.offer.create({
         data: {
           data: bodyParams.data,
           uid: crypto.randomUUID(),
           expiry: new Date(bodyParams.expiry),
           bodyVersionId: bodyParams.bodyVersionId,
+          offerId: bodyParams.bodyVersionId,
         },
       });
       return offer;
     } catch (error) {
       throw error;
     }
-  }
+  }*/
 
   async offerViewed(queryParams: ReqOfferViewed): Promise<Offer> {
     try {
@@ -178,24 +188,93 @@ export class OfferService {
       }
 
       // check whether time for accepting the offer is expired or not
-      const expiryLuxon = DateTime.fromJSDate(offerDetails.expiry);
+
+      //const expiryLuxon = DateTime.fromJSDate(offerDetails.expiry);
       const now = DateTime.now();
-      if (expiryLuxon < now) {
-        throw new Error("Offer Already Expired");
+      //if (expiryLuxon < now) {
+      //throw new Error("Offer Already Expired");
+      //}
+      try {
+        const acceptOffer = await prisma.offer.update({
+          where: {
+            uid: queryParams.uid,
+          },
+          data: {
+            isAccepted: true,
+            acceptedDate: new Date(),
+            prefferedMonth: queryParams.prefferedMonth,
+          },
+        });
+        return acceptOffer;
+      } catch (error) {
+        throw error;
       }
-      const acceptOffer = await prisma.offer.update({
-        where: {
-          uid: queryParams.uid,
-        },
-        data: {
-          isAccepted: true,
-          acceptedDate: new Date(),
-          prefferedMonth: queryParams.prefferedMonth,
-        },
-      });
-      return acceptOffer;
     } catch (error) {
       throw error;
+    }
+  }
+
+  async getTemplate(id: number): Promise<any> {
+    try {
+      const templateContent = await prisma.templateContent.findFirst({
+        where: {
+          version: 1,
+          templateId: id,
+        },
+      });
+      if (templateContent) {
+        let htmlContent: any[] = [];
+        const templatecontents = JSON.parse(templateContent.content);
+        //console.log(templatecontents);
+
+        for (var val of templatecontents) {
+          let sectionContent = await prisma.sectionContent.findFirst({
+            where: {
+              sectionId: val.contentId,
+              version: 1,
+            },
+          });
+
+          htmlContent.push({
+            sectionContent: sectionContent,
+            templateContent: val,
+          });
+        }
+        return htmlContent;
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getTemplateAndData(uid: string): Promise<any> {
+    try {
+      const offerDetails = await prisma.offer.findUniqueOrThrow({
+        where: {
+          uid: uid,
+        },
+      });
+      //console.log(offerDetails)
+
+      const templateAndSectionContents = await this.getTemplate(
+        offerDetails.templateContentId
+      );
+      /*
+      if (offerDetails.offerId) {
+        const template = await this.getTemplate(offerDetails.offerId);
+        
+        if(offerDetails.expiry){
+          const expiryLuxon = DateTime.fromJSDate(offerDetails.expiry);
+          const now = DateTime.now();
+          offerDetails['isExpired'] =  !(now < expiryLuxon)
+        }*/
+      return {
+        template: templateAndSectionContents,
+        templateData: JSON.parse(offerDetails.data),
+        offerDetails: offerDetails,
+      };
+    } catch (e) {
+      throw e;
     }
   }
 }
