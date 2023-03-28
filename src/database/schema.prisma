@@ -7,34 +7,48 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model OfferTemplate {
-  id       Int           @id @default(autoincrement())
-  type     String
-  name     String        @unique
-  versions BodyVersion[]
-}
-
-model BodyVersion {
-  id            Int           @id @default(autoincrement())
-  offerId       Int
-  body          String        @db.LongText
-  version       Int
-  offerTemplate OfferTemplate @relation(fields: [offerId], references: [id])
-  offers        Offer[]
-}
-
 model Offer {
-  id             Int         @id @default(autoincrement())
-  uid            String      @unique
-  expiry         DateTime
-  createdDate    DateTime    @default(now())
-  views          Int         @default(0)
-  isAccepted     Boolean     @default(false)
-  acceptedDate   DateTime?
-  prefferedMonth String?
-  lastView       DateTime?
-  bodyVersionId  Int         @unique
-  offerId        Int?
-  data           String      @db.MediumText
-  bodyVersion    BodyVersion @relation(fields: [bodyVersionId], references: [id])
+  id                Int             @id @default(autoincrement())
+  uid               String          @unique
+  expiry            DateTime?
+  createdDate       DateTime        @default(now())
+  views             Int             @default(0)
+  isAccepted        Boolean         @default(false)
+  acceptedDate      DateTime?
+  prefferedMonth    String?
+  lastView          DateTime?
+  templateContentId Int
+  data              String          @db.LongText
+  templateContent   TemplateContent @relation(fields: [templateContentId], references: [id])
+}
+
+model Template {
+  id              Int               @id @default(autoincrement())
+  name            String
+  category        String
+  TemplateContent TemplateContent[]
+   @@unique(fields: [name, category],name: "uniqueTemplate")
+}
+
+model TemplateContent {
+  id         Int      @id @default(autoincrement())
+  content    String   @db.LongText
+  templateId Int
+  version    Int
+  template   Template @relation(fields: [templateId], references: [id])
+  Offer      Offer[]
+}
+
+model Section {
+  id              Int              @id @default(autoincrement())
+  sectionName     String
+  sectionContents SectionContent[]
+}
+
+model SectionContent {
+  id        Int     @id @default(autoincrement())
+  sectionId Int
+  content   String  @db.LongText
+  version   Int
+  section   Section @relation(fields: [sectionId], references: [id])
 }

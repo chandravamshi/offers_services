@@ -27,110 +27,149 @@ const typedi_1 = require("typedi");
 const offer_dto_1 = require("../dto/offer.dto");
 const OfferService_1 = require("../services/OfferService");
 const ValidationErrors_1 = require("../middelwares/ValidationErrors");
-const AuthMiddelware_1 = require("../middelwares/AuthMiddelware");
 let OfferController = class OfferController {
     constructor(offerService) {
         this.offerService = offerService;
     }
     // get all template records
-    getAllTemplates(response) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                console.log("/list-templates");
-                const allTemplates = yield this.offerService.getAllTemplates();
-                return response.status(200).send({
-                    status: "success",
-                    data: allTemplates,
-                });
-            }
-            catch (e) {
-                throw e;
-            }
+    /*
+    @Get("/list-templates")
+    @UseBefore(AuthMiddleware)
+    async getAllTemplates(@Res() response: any): Promise<OfferTemplate[]> {
+      try {
+        console.log("/list-templates");
+        const allTemplates = await this.offerService.getAllTemplates();
+        return response.status(200).send({
+          status: "success",
+          data: allTemplates,
         });
-    }
+      } catch (e) {
+        throw e;
+      }
+    }*/
     // create new template
-    createOfferTemplate(createTemplateParams, response) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const createTemplateResponse = yield this.offerService.createTemplate(createTemplateParams);
-                return response.status(200).send({
-                    status: "success",
-                    data: createTemplateResponse,
-                });
-            }
-            catch (e) {
-                throw e;
-            }
+    /*
+    @Post("/create-template")
+    @UseAfter(ValidationErrors)
+    async createOfferTemplate(
+      @Body({
+        validate: {
+          whitelist: true,
+          forbidNonWhitelisted: true,
+          validationError: { target: false, value: false },
+        },
+      })
+      createTemplateParams: CreateOfferTemplateDto,
+      @Res() response: any
+    ): Promise<ResOfferTemplate> {
+      try {
+        const createTemplateResponse = await this.offerService.createTemplate(
+          createTemplateParams
+        );
+        return response.status(200).send({
+          status: "success",
+          data: createTemplateResponse,
         });
-    }
+      } catch (e) {
+        throw e;
+      }
+    }*/
     // find template by id
-    findTemplate(params, response) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const template = yield this.offerService.getTemplate(params.id);
-                return response.status(200).send({
-                    status: "success",
-                    data: {
-                        name: template.name,
-                        type: template.type,
-                        body: template.versions[0].body,
-                        version: template.version[0].version,
-                    },
-                });
-            }
-            catch (error) {
-                response.status(404);
-                throw error;
-            }
+    /*
+    @Get("/find-template")
+    @UseAfter(ValidationErrors)
+    async findTemplate(
+      @QueryParams() params: FindTemplateDto,
+      @Res() response: any
+    ): Promise<ResOfferTemplate> {
+      try {
+        const template = await this.offerService.getTemplate(params.id);
+        return response.status(200).send({
+          status: "success",
+          data: {
+            name: template.name,
+            type: template.type,
+            body: template.versions[0].body,
+            version: template.version[0].version,
+          },
         });
-    }
-    getTemplateData(params, response) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const template = yield this.offerService.getTemplateData(params.id);
-                return response.status(200).send({
-                    status: "success",
-                    data: JSON.parse(template.data),
-                });
-            }
-            catch (error) {
-                throw error;
-            }
+      } catch (error) {
+        response.status(404);
+        throw error;
+      }
+    }*/
+    /*
+    @Get("/get-template-data")
+    @UseAfter(ValidationErrors)
+    async getTemplateData(
+      @QueryParams() params: FindTemplateDto,
+      @Res() response: any
+    ): Promise<ResOfferTemplate> {
+      try {
+        const template = await this.offerService.getTemplateData(params.id);
+        return response.status(200).send({
+          status: "success",
+          data: JSON.parse(template.data),
         });
+      } catch (error) {
+        throw error;
+      }
     }
+    */
     // update template by id
-    updateTemplate(queryParams, bodyParams, response) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const template = yield this.offerService.updateTemplate(queryParams, bodyParams);
-                return response.status(200).send({
-                    status: "success",
-                    data: template,
-                });
-            }
-            catch (error) {
-                throw error;
-            }
+    /*
+    @Post("/update-template/:id")
+    @UseAfter(ValidationErrors)
+    async updateTemplate(
+      @QueryParams() queryParams: any,
+      @Body()
+      bodyParams: any,
+      @Res() response: any
+    ): Promise<ResOfferTemplate> {
+      try {
+        const template = await this.offerService.updateTemplate(
+          queryParams,
+          bodyParams
+        );
+        return response.status(200).send({
+          status: "success",
+          data: template,
         });
+      } catch (error) {
+        throw error;
+      }
     }
-    generateOffer(bodyParams, response) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const offer = yield this.offerService.generateOffer(bodyParams);
-                return response.status(200).send({
-                    status: "success",
-                    data: offer,
-                });
-            }
-            catch (error) {
-                throw error;
-            }
+    */
+    /**{
+        validate: {
+          whitelist: true,
+          forbidNonWhitelisted: true,
+          validationError: { target: false, value: false },
+        },
+      } */
+    /*
+    @Post("/generate-offer")
+    @UseAfter(ValidationErrors)
+    async generateOffer(
+      @Body()
+      bodyParams: any,
+      @Res() response: any
+    ): Promise<Offer> {
+      try {
+        const offer = await this.offerService.generateOffer(bodyParams);
+        return response.status(200).send({
+          status: "success",
+          data: offer,
         });
-    }
+      } catch (error) {
+        response.status(400)
+        throw error;
+      }
+    }*/
     offerViewed(queryParams, response) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log(queryParams);
+                // console.log(queryParams);
                 const offer = yield this.offerService.offerViewed(queryParams);
                 return response.status(200).send({
                     status: "success",
@@ -145,7 +184,7 @@ let OfferController = class OfferController {
     acceptOffer(queryParams, response) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log(queryParams);
+                // console.log(queryParams);
                 const offer = yield this.offerService.acceptOffer(queryParams);
                 return response.status(200).send({
                     status: "success",
@@ -153,7 +192,44 @@ let OfferController = class OfferController {
                 });
             }
             catch (error) {
+                response.status(400);
                 throw error;
+            }
+        });
+    }
+    /*
+    @Get("/find-template-and-data-by-uid")
+    @UseAfter(ValidationErrors)
+    async findTemplateAndData(
+      @QueryParams() params: FindTemplateAndDataDto,
+      @Res() response: any
+    ): Promise<ResOfferTemplate> {
+      try {
+        const template = await this.offerService.getTemplateAndData(params.uid);
+        return response.status(200).send({
+          status: "success",
+          template: template.template.versions[0].body,
+          data: JSON.parse(template.templateData),
+          offerDetails :template.offerDetails
+        });
+      } catch (error) {
+        response.status(404);
+        throw error;
+      }
+    }*/
+    getAllTemplates(response, params) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const allTemplates = yield this.offerService.getTemplate(Number(params.id));
+                //console.log("allTemplates");
+                //console.log(allTemplates);
+                return response.status(200).send({
+                    status: "success",
+                    data: allTemplates,
+                });
+            }
+            catch (e) {
+                throw e;
             }
         });
     }
@@ -163,8 +239,9 @@ let OfferController = class OfferController {
                 const template = yield this.offerService.getTemplateAndData(params.uid);
                 return response.status(200).send({
                     status: "success",
-                    template: template.template.versions[0].body,
+                    template: template.template,
                     data: JSON.parse(template.templateData),
+                    offerDetails: template.offerDetails,
                 });
             }
             catch (error) {
@@ -173,73 +250,84 @@ let OfferController = class OfferController {
             }
         });
     }
+    get(params, response) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const template = yield this.offerService.getTemplateAndData(params.uid);
+                return response.status(200).send({
+                    status: "success",
+                    template: template.template,
+                    data: JSON.parse(template.templateData),
+                    offerDetails: template.offerDetails,
+                });
+            }
+            catch (error) {
+                response.status(404);
+                throw error;
+            }
+        });
+    }
+    getTemplates(response) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const templates = yield this.offerService.getTemplates();
+                return response.status(200).send({
+                    status: "success",
+                    data: templates
+                });
+            }
+            catch (error) {
+                response.status(404);
+                throw error;
+            }
+        });
+    }
+    getTemplateAndSections(params, response) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const templates = yield this.offerService.getTemplateAndSections(Number(params.id));
+                return response.status(200).send({
+                    status: "success",
+                    data: templates
+                });
+            }
+            catch (error) {
+                response.status(404);
+                throw error;
+            }
+        });
+    }
+    generateOffer(bodyParams, response) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const offer = yield this.offerService.generateOffer(bodyParams);
+                return response.status(200).send({
+                    status: "success",
+                    data: offer,
+                });
+            }
+            catch (error) {
+                response.status(400);
+                throw error;
+            }
+        });
+    }
+    createTemplate(bodyParams, response) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const template = yield this.offerService.createTemplate(bodyParams);
+                return response.status(200).send({
+                    status: "success",
+                    data: template,
+                });
+            }
+            catch (error) {
+                response.status(400);
+                throw error;
+            }
+        });
+    }
 };
-__decorate([
-    (0, routing_controllers_1.Get)("/list-templates"),
-    (0, routing_controllers_1.UseBefore)(AuthMiddelware_1.AuthMiddleware),
-    __param(0, (0, routing_controllers_1.Res)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", Promise)
-], OfferController.prototype, "getAllTemplates", null);
-__decorate([
-    (0, routing_controllers_1.Post)("/create-template"),
-    (0, routing_controllers_1.UseAfter)(ValidationErrors_1.ValidationErrors),
-    __param(0, (0, routing_controllers_1.Body)({
-        validate: {
-            whitelist: true,
-            forbidNonWhitelisted: true,
-            validationError: { target: false, value: false },
-        },
-    })),
-    __param(1, (0, routing_controllers_1.Res)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [offer_dto_1.CreateOfferTemplateDto, Object]),
-    __metadata("design:returntype", Promise)
-], OfferController.prototype, "createOfferTemplate", null);
-__decorate([
-    (0, routing_controllers_1.Get)("/find-template"),
-    (0, routing_controllers_1.UseAfter)(ValidationErrors_1.ValidationErrors),
-    __param(0, (0, routing_controllers_1.QueryParams)()),
-    __param(1, (0, routing_controllers_1.Res)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [offer_dto_1.FindTemplateDto, Object]),
-    __metadata("design:returntype", Promise)
-], OfferController.prototype, "findTemplate", null);
-__decorate([
-    (0, routing_controllers_1.Get)("/get-template-data"),
-    (0, routing_controllers_1.UseAfter)(ValidationErrors_1.ValidationErrors),
-    __param(0, (0, routing_controllers_1.QueryParams)()),
-    __param(1, (0, routing_controllers_1.Res)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [offer_dto_1.FindTemplateDto, Object]),
-    __metadata("design:returntype", Promise)
-], OfferController.prototype, "getTemplateData", null);
-__decorate([
-    (0, routing_controllers_1.Post)("/update-template/:id"),
-    (0, routing_controllers_1.UseAfter)(ValidationErrors_1.ValidationErrors),
-    __param(0, (0, routing_controllers_1.QueryParams)()),
-    __param(1, (0, routing_controllers_1.Body)()),
-    __param(2, (0, routing_controllers_1.Res)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object, Object]),
-    __metadata("design:returntype", Promise)
-], OfferController.prototype, "updateTemplate", null);
-__decorate([
-    (0, routing_controllers_1.Post)("/generate-offer"),
-    (0, routing_controllers_1.UseAfter)(ValidationErrors_1.ValidationErrors),
-    __param(0, (0, routing_controllers_1.Body)({
-        validate: {
-            whitelist: true,
-            forbidNonWhitelisted: true,
-            validationError: { target: false, value: false },
-        },
-    })),
-    __param(1, (0, routing_controllers_1.Res)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [offer_dto_1.ReqGenerateOfferDto, Object]),
-    __metadata("design:returntype", Promise)
-], OfferController.prototype, "generateOffer", null);
 __decorate([
     (0, routing_controllers_1.Post)("/offer-viewed"),
     (0, routing_controllers_1.UseAfter)(ValidationErrors_1.ValidationErrors),
@@ -271,7 +359,16 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], OfferController.prototype, "acceptOffer", null);
 __decorate([
-    (0, routing_controllers_1.Get)("/find-template-and-data-by-uid"),
+    (0, routing_controllers_1.Get)("/get-template"),
+    (0, routing_controllers_1.UseAfter)(ValidationErrors_1.ValidationErrors),
+    __param(0, (0, routing_controllers_1.Res)()),
+    __param(1, (0, routing_controllers_1.QueryParams)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], OfferController.prototype, "getAllTemplates", null);
+__decorate([
+    (0, routing_controllers_1.Get)("/get-offer-and-template-data"),
     (0, routing_controllers_1.UseAfter)(ValidationErrors_1.ValidationErrors),
     __param(0, (0, routing_controllers_1.QueryParams)()),
     __param(1, (0, routing_controllers_1.Res)()),
@@ -279,6 +376,50 @@ __decorate([
     __metadata("design:paramtypes", [offer_dto_1.FindTemplateAndDataDto, Object]),
     __metadata("design:returntype", Promise)
 ], OfferController.prototype, "findTemplateAndData", null);
+__decorate([
+    (0, routing_controllers_1.Get)("/get-required-sections"),
+    (0, routing_controllers_1.UseAfter)(ValidationErrors_1.ValidationErrors),
+    __param(0, (0, routing_controllers_1.QueryParams)()),
+    __param(1, (0, routing_controllers_1.Res)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [offer_dto_1.FindTemplateAndDataDto, Object]),
+    __metadata("design:returntype", Promise)
+], OfferController.prototype, "get", null);
+__decorate([
+    (0, routing_controllers_1.Get)("/get-templates"),
+    (0, routing_controllers_1.UseAfter)(ValidationErrors_1.ValidationErrors),
+    __param(0, (0, routing_controllers_1.Res)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], OfferController.prototype, "getTemplates", null);
+__decorate([
+    (0, routing_controllers_1.Get)("/get-template-and-sections"),
+    (0, routing_controllers_1.UseAfter)(ValidationErrors_1.ValidationErrors),
+    __param(0, (0, routing_controllers_1.QueryParams)()),
+    __param(1, (0, routing_controllers_1.Res)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], OfferController.prototype, "getTemplateAndSections", null);
+__decorate([
+    (0, routing_controllers_1.Post)("/generate-offer"),
+    (0, routing_controllers_1.UseAfter)(ValidationErrors_1.ValidationErrors),
+    __param(0, (0, routing_controllers_1.Body)()),
+    __param(1, (0, routing_controllers_1.Res)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], OfferController.prototype, "generateOffer", null);
+__decorate([
+    (0, routing_controllers_1.Post)("/create-template"),
+    (0, routing_controllers_1.UseAfter)(ValidationErrors_1.ValidationErrors),
+    __param(0, (0, routing_controllers_1.Body)()),
+    __param(1, (0, routing_controllers_1.Res)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], OfferController.prototype, "createTemplate", null);
 OfferController = __decorate([
     (0, typedi_1.Service)(),
     (0, routing_controllers_1.JsonController)("/offers"),

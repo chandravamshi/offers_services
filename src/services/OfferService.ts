@@ -9,6 +9,7 @@ import {
 } from "../dto/offer.dto";
 import crypto from "crypto";
 import { DateTime } from "luxon";
+import { version } from "os";
 const bcrypt = require("bcrypt");
 
 @Service()
@@ -247,6 +248,20 @@ export class OfferService {
     }
   }
 
+  async getSectionContent(ids: []): Promise<any> {
+    try {
+      const allSectionContent = await prisma.sectionContent.findMany({
+        where: {
+          id: { in: ids },
+        },
+      });
+
+      return allSectionContent;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async getTemplateAndData(uid: string): Promise<any> {
     try {
       const offerDetails = await prisma.offer.findUniqueOrThrow({
@@ -262,7 +277,7 @@ export class OfferService {
       /*
       if (offerDetails.offerId) {
         const template = await this.getTemplate(offerDetails.offerId);
-        
+
         if(offerDetails.expiry){
           const expiryLuxon = DateTime.fromJSDate(offerDetails.expiry);
           const now = DateTime.now();
@@ -275,6 +290,83 @@ export class OfferService {
       };
     } catch (e) {
       throw e;
+    }
+  }
+
+  async getTemplates(): Promise<any> {
+    try {
+      const templates = await prisma.template.findMany({});
+      return templates;
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async getTemplateAndSections(id: any): Promise<any> {
+    try {
+      const templates = await this.getTemplate(id);
+      // console.log(templates)
+      return templates;
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async generateOffer(bodyParams: any): Promise<Offer> {
+    try {
+      //console.log(bodyParams.bodyVersionId);
+      const offer = await prisma.offer.create({
+        data: {
+          data: bodyParams.data,
+          uid: crypto.randomUUID(),
+          expiry: new Date(bodyParams.expiry),
+          templateContentId: bodyParams.templateId,
+        },
+      });
+      return offer;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async createTemplate(bodyParams: any): Promise<any> {
+    try {
+      //check if tempalte already exist
+      const tempalteExist = await prisma.template.findUnique({
+        where: {
+          uniqueTemplate: {
+            name: bodyParams.name,
+            category: bodyParams.category,
+          },
+        },
+      });
+      if (tempalteExist) {
+        throw new Error("Template with category already exist");
+      }
+      const template = await prisma.template.create({
+        data: {
+          name: bodyParams.name,
+          category: bodyParams.category,
+          TemplateContent: {
+            create: {
+              version: 1,
+              content: JSON.stringify(bodyParams.content),
+            },
+          },
+        },
+      });
+      /* if (template) {
+        const templateContent = await prisma.templateContent.create({
+          data: {
+            templateId: template.id,
+            version: 1,
+            content: JSON.stringify(bodyParams.content),
+          },
+        }); templateContent: templateContent 
+      }*/
+      return { template: template };
+    } catch (error) {
+      throw error;
     }
   }
 }

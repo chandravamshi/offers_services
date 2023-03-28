@@ -23,7 +23,7 @@ import {
 } from "../dto/offer.dto";
 import { OfferService } from "../services/OfferService";
 import { ValidationErrors } from "../middelwares/ValidationErrors";
-import { Offer, OfferTemplate } from "@prisma/client";
+import { Offer } from "@prisma/client";
 import { AuthMiddleware } from "../middelwares/AuthMiddelware";
 
 @Service()
@@ -32,6 +32,7 @@ export class OfferController {
   constructor(private offerService: OfferService) {}
 
   // get all template records
+  /*
   @Get("/list-templates")
   @UseBefore(AuthMiddleware)
   async getAllTemplates(@Res() response: any): Promise<OfferTemplate[]> {
@@ -45,9 +46,10 @@ export class OfferController {
     } catch (e) {
       throw e;
     }
-  }
+  }*/
 
   // create new template
+  /*
   @Post("/create-template")
   @UseAfter(ValidationErrors)
   async createOfferTemplate(
@@ -72,9 +74,10 @@ export class OfferController {
     } catch (e) {
       throw e;
     }
-  }
+  }*/
 
   // find template by id
+  /*
   @Get("/find-template")
   @UseAfter(ValidationErrors)
   async findTemplate(
@@ -96,8 +99,8 @@ export class OfferController {
       response.status(404);
       throw error;
     }
-  }
-
+  }*/
+  /*
   @Get("/get-template-data")
   @UseAfter(ValidationErrors)
   async getTemplateData(
@@ -114,8 +117,10 @@ export class OfferController {
       throw error;
     }
   }
+  */
 
   // update template by id
+  /*
   @Post("/update-template/:id")
   @UseAfter(ValidationErrors)
   async updateTemplate(
@@ -137,18 +142,21 @@ export class OfferController {
       throw error;
     }
   }
+  */
 
-  @Post("/generate-offer")
-  @UseAfter(ValidationErrors)
-  async generateOffer(
-    @Body({
+  /**{
       validate: {
         whitelist: true,
         forbidNonWhitelisted: true,
         validationError: { target: false, value: false },
       },
-    })
-    bodyParams: ReqGenerateOfferDto,
+    } */
+  /*
+  @Post("/generate-offer")
+  @UseAfter(ValidationErrors)
+  async generateOffer(
+    @Body()
+    bodyParams: any,
     @Res() response: any
   ): Promise<Offer> {
     try {
@@ -158,9 +166,10 @@ export class OfferController {
         data: offer,
       });
     } catch (error) {
+      response.status(400)
       throw error;
     }
-  }
+  }*/
 
   @Post("/offer-viewed")
   @UseAfter(ValidationErrors)
@@ -176,7 +185,7 @@ export class OfferController {
     @Res() response: any
   ): Promise<Offer> {
     try {
-      console.log(queryParams);
+      // console.log(queryParams);
       const offer = await this.offerService.offerViewed(queryParams);
       return response.status(200).send({
         status: "success",
@@ -201,17 +210,18 @@ export class OfferController {
     @Res() response: any
   ): Promise<Offer> {
     try {
-      console.log(queryParams);
+      // console.log(queryParams);
       const offer = await this.offerService.acceptOffer(queryParams);
       return response.status(200).send({
         status: "success",
         data: offer,
       });
     } catch (error) {
+      response.status(400);
       throw error;
     }
   }
-
+  /*
   @Get("/find-template-and-data-by-uid")
   @UseAfter(ValidationErrors)
   async findTemplateAndData(
@@ -224,13 +234,159 @@ export class OfferController {
         status: "success",
         template: template.template.versions[0].body,
         data: JSON.parse(template.templateData),
+        offerDetails :template.offerDetails
+      });
+    } catch (error) {
+      response.status(404);
+      throw error;
+    }
+  }*/
+
+  @Get("/get-template")
+  @UseAfter(ValidationErrors)
+  async getAllTemplates(
+    @Res() response: any,
+    @QueryParams() params: any
+  ): Promise<any> {
+    try {
+      const allTemplates = await this.offerService.getTemplate(
+        Number(params.id)
+      );
+      //console.log("allTemplates");
+      //console.log(allTemplates);
+      return response.status(200).send({
+        status: "success",
+        data: allTemplates,
+      });
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  @Get("/get-offer-and-template-data")
+  @UseAfter(ValidationErrors)
+  async findTemplateAndData(
+    @QueryParams() params: FindTemplateAndDataDto,
+    @Res() response: any
+  ): Promise<ResOfferTemplate> {
+    try {
+      const template = await this.offerService.getTemplateAndData(params.uid);
+      return response.status(200).send({
+        status: "success",
+        template: template.template,
+        data: JSON.parse(template.templateData),
+        offerDetails: template.offerDetails,
       });
     } catch (error) {
       response.status(404);
       throw error;
     }
   }
+
+
+
+  @Get("/get-required-sections")
+  @UseAfter(ValidationErrors)
+  async get(
+    @QueryParams() params: FindTemplateAndDataDto,
+    @Res() response: any
+  ): Promise<ResOfferTemplate> {
+    try {
+      const template = await this.offerService.getTemplateAndData(params.uid);
+      return response.status(200).send({
+        status: "success",
+        template: template.template,
+        data: JSON.parse(template.templateData),
+        offerDetails: template.offerDetails,
+      });
+    } catch (error) {
+      response.status(404);
+      throw error;
+    }
+  }
+
+
+  @Get("/get-templates")
+  @UseAfter(ValidationErrors)
+  async getTemplates(
+    @Res() response: any
+  ): Promise<ResOfferTemplate> {
+    try {
+      const templates = await this.offerService.getTemplates();
+      return response.status(200).send({
+        status: "success",
+        data: templates
+      });
+    } catch (error) {
+      response.status(404);
+      throw error;
+    }
+  }
+
+
+
+  @Get("/get-template-and-sections")
+  @UseAfter(ValidationErrors)
+  async getTemplateAndSections(
+    @QueryParams() params: any,
+    @Res() response: any
+  ): Promise<ResOfferTemplate> {
+    try {
+      const templates = await this.offerService.getTemplateAndSections(Number(params.id));
+      return response.status(200).send({
+        status: "success",
+        data: templates
+      });
+    } catch (error) {
+      response.status(404);
+      throw error;
+    }
+  }
+
+
+  
+  @Post("/generate-offer")
+  @UseAfter(ValidationErrors)
+  async generateOffer(
+    @Body()
+    bodyParams: any,
+    @Res() response: any
+  ): Promise<Offer> {
+    try {
+      const offer = await this.offerService.generateOffer(bodyParams);
+      return response.status(200).send({
+        status: "success",
+        data: offer,
+      });
+    } catch (error) {
+      response.status(400)
+      throw error;
+    }
+  }
+
+  @Post("/create-template")
+  @UseAfter(ValidationErrors)
+  async createTemplate(
+    @Body()
+    bodyParams: any,
+    @Res() response: any
+  ): Promise<Offer> {
+    try {
+      const template = await this.offerService.createTemplate(bodyParams);
+      return response.status(200).send({
+        status: "success",
+        data: template,
+      });
+    } catch (error) {
+      response.status(400)
+      throw error;
+    }
+  }
+
 }
+
+
+
 
 /**
  * {
